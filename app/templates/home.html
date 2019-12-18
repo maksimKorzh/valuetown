@@ -27,7 +27,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle">Similar sales history</h5>
+          <h5 class="modal-title text-center"><strong>Similar sales history</strong></h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -42,7 +42,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 id="image-title" class="modal-title" id="modalTitle"></h5>
+          <h5 id="image-title" class="modal-title"></h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -96,7 +96,7 @@
       $('#modal-body').empty().text('Loading results...')
       
       var features = $($(button).closest('tr').prev().find('td')[1]);
-      var query = $(features).text()//.split(',')[0].replace('Avenue', '')
+      var query = $(features).text()
 
       $.post('/api/birnimgham_sold?q=' + query, function (data) {
         $('#modal-body').text('')
@@ -149,7 +149,7 @@
       var title = $(features).text()
       var image = $(button).attr('data')      
 
-      $('#image-title').text(title)
+      $('#image-title').append('<strong>' + title + '</strong>')
       $('#image-body').append('<img src="'+ image + '">')
 
     }
