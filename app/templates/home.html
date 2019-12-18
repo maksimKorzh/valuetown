@@ -1,0 +1,158 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <div class="card mt-2">
+    <div id="container" class="card-body text-center">
+      <h5 class="card-title text-center"><strong class="text-success">Search properties</strong></h5>
+      <hr class="my-4"></hr>
+      <table id="houses" class="display responsive nowrap text-left" style="width: 100%">
+        <thead>
+          <tr>
+            <th>Title:</th>
+            <th>Address:</th>
+            <th>Price:</th>
+            <th>Date:</th>
+            <th>Seller:</th>
+            <th>Description:</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Modal history -->
+  <div class="modal fade" id="modalHistory" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Similar sales history</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="modal-body" class="modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal image -->
+  <div class="modal fade" id="modalImage" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="image-title" class="modal-title" id="modalTitle"></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="image-body" class="modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#houses').DataTable({
+        "ajax": "/api/birnimgham_active",
+        "columns": [
+          {"data": "title"},
+          {"data": "address"},
+          {"data": "price"},
+          {"data": "date"},
+          {"data": "seller"},
+          {"data": "description"},
+          {"data": "image"},
+          {"data": ''}
+        ],
+        
+        columnDefs: [
+          {
+              render: function (data, type, full, meta) {
+                return "<div class='text-wrap'>" + data + "</div>";
+              },
+              targets: 5
+          },
+          {
+              render: function (data, type, full, meta) {
+                return '<button type="button" data="' + data + '" onclick="showImage(this)" class="btn btn-primary" data-toggle="modal" data-target="#modalImage">View image...</button>';
+              },
+              targets: 6
+          },
+          {
+              render: function (data, type, full, meta) {
+                return '<button type="button" onclick="salesHistory(this)" class="btn btn-secondary" data-toggle="modal" data-target="#modalHistory">Sale history...</button>';
+              },
+              targets: 7
+          }
+        ]
+        
+      });
+      
+    });
+    
+    function salesHistory(button) {
+      $('#modal-body').empty().text('Loading results...')
+      
+      var features = $($(button).closest('tr').prev().find('td')[1]);
+      var query = $(features).text()//.split(',')[0].replace('Avenue', '')
+
+      $.post('/api/birnimgham_sold?q=' + query, function (data) {
+        $('#modal-body').text('')
+        
+        if (data.data.length == 0)
+          $('#modal-body').text('No results found')
+          
+        for (var index = 0; index < data.data.length; index++) {
+          var table = `
+            <table class="display table mt-4">
+              <thead>
+                <tr>
+                  <th>Price</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Bedrooms</th>
+                </tr>
+              </thead>
+              <tbody>
+          `
+          
+          data.data[index].history.forEach((item) => {
+            table += `        
+              <tr>
+                <td>${item.price}</td>
+                <td>${item.type}</td>
+                <td>${item.date}</td>
+                <td>${item.bedrooms}</td>
+              <tr>
+            `
+          })
+          
+          table += "</tbody></table>"
+
+          $('#modal-body').append(
+            '<div class="col">' +
+              '<strong>' + data.data[index].address + '</strong>' + table +
+              
+            '<div>');
+        }
+      });
+      
+    }
+    
+    function showImage(button) {
+      $('#image-title').empty()
+      $('#image-body').empty()
+      
+      var features = $($(button).closest('tr').prev().find('td')[1]);
+      var title = $(features).text()
+      var image = $(button).attr('data')      
+
+      $('#image-title').text(title)
+      $('#image-body').append('<img src="'+ image + '">')
+
+    }
+  </script>
+  
+{% endblock %}
