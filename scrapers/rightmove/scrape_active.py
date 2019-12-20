@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os.path
 import csv
 import time
+import sys
 
 
 class PropertyScraper:
@@ -18,8 +19,6 @@ class PropertyScraper:
         'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/75.0.3770.142 Chrome/75.0.3770.142 Safari/537.36'
     }
-    
-    base_url = 'https://www.rightmove.co.uk/property-for-sale/Birmingham.html'
     
     def fetch(self, url, params):
         print('HTTP GET request to URL: %s' % url, end='')        
@@ -51,12 +50,12 @@ class PropertyScraper:
             })
 
     def to_csv(self, row):
-        if os.path.isfile('property.csv'):
+        if os.path.isfile('./data/' + self.filename):
             file_exists = True
         else:
             file_exists = False
         
-        with open('property.csv', 'a') as csv_file:
+        with open('./data/' + self.filename, 'a') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=row.keys())
             
             if not file_exists:
@@ -79,7 +78,7 @@ class PropertyScraper:
         self.parse(response.text)
         time.sleep(2)
         
-        for page in range(1, 42):
+        for page in range(1, self.pages):
             params['index'] = str(page * 24)
             
             response = self.fetch(self.base_url, params)
@@ -88,9 +87,15 @@ class PropertyScraper:
 
 
 if __name__ == '__main__':
-    scraper = PropertyScraper()
+    try:
+        scraper = PropertyScraper()
+        scraper.base_url = sys.argv[1]
+        scraper.filename = sys.argv[1].split('.')[-2].split('/')[-1].lower() + '.csv'
+        scraper.pages = int(sys.argv[2])
+    except:
+        print('usage: python3 scrape_active.py https://www.rightmove.co.uk/property-for-sale/London.html 42')
+    
     scraper.run()
-        
         
         
         

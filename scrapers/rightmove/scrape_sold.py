@@ -1,12 +1,9 @@
-#https://www.rightmove.co.uk/house-prices/detail.html?
-#country=england
-#locationIdentifier=REGION%5E162&searchLocation=Birmingham&referrer=landingPage&index=25
-
 import requests
 from bs4 import BeautifulSoup
 import os.path
 import json
 import time
+import sys
 
 
 class PropertyScraper:
@@ -23,8 +20,6 @@ class PropertyScraper:
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/75.0.3770.142 Chrome/75.0.3770.142 Safari/537.36'
     }
     
-    base_url = 'https://www.rightmove.co.uk/house-prices/detail.html?country=england&locationIdentifier=REGION%5E162&searchLocation=Birmingham&referrer=landingPage'
-    
     def fetch(self, url):
         print('HTTP GET request to URL: %s' % url, end='')
         response = requests.get(url, headers=self.headers)
@@ -33,12 +28,6 @@ class PropertyScraper:
         return response
         
     def parse(self, html):
-        #text = ''
-        
-        #with open('res.html', 'r') as html_file:
-        #    for line in html_file.read():
-        #        text += line
-        
         content = BeautifulSoup(html, 'lxml')
         cards = content.findAll('div', {'class': 'soldDetails'})
         
@@ -67,7 +56,7 @@ class PropertyScraper:
             })
 
     def to_json(self, row):
-        with open('sold.json', 'a') as json_file:
+        with open('./data/' + self.filename, 'a') as json_file:
             json_file.write(json.dumps(row, indent=2) + ',\n')
     
     def run(self):        
@@ -75,7 +64,7 @@ class PropertyScraper:
         self.parse(response.text)
         time.sleep(2)
         
-        for page in range(1, 40):
+        for page in range(1, self.pages):
             index = str(page * 25)
             
             response = self.fetch(self.base_url + '&index=' + str(index))
@@ -88,7 +77,14 @@ class PropertyScraper:
 
 
 if __name__ == '__main__':
-    scraper = PropertyScraper()
+    try:
+        scraper = PropertyScraper()
+        scraper.base_url = sys.argv[1].replace('"', '')
+        scraper.pages = int(sys.argv[2])
+        scraper.filename = sys.argv[3]
+    except:
+        print('usage: python3 scrape_sold.py "https://www.rightmove.co.uk/house-prices/detail.html?country=england&locationIdentifier=REGION%5E162&searchLocation=Birmingham&referrer=landingPage" 40 test.json')
+        
     scraper.run()
         
         
