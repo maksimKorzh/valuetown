@@ -3,6 +3,7 @@ from flask_pymongo import PyMongo
 from flask import render_template
 from flask import jsonify
 from flask import request
+import re
 
 
 ######################################################
@@ -12,7 +13,7 @@ from flask import request
 ######################################################
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb+srv://cmk:342124@todolist-c483l.gcp.mongodb.net/properties?retryWrites=true&w=majority"
+app.config["MONGO_URI"] = "mongodb+srv://alex:342124@cluster0-equas.mongodb.net/properties?retryWrites=true&w=majority"
 mongo = PyMongo(app)
 
 
@@ -24,30 +25,63 @@ mongo = PyMongo(app)
 
 @app.route('/')
 def home():
-    return render_template('home.html', test=test)
+    return render_template('view.html')
 
-@app.route('/api/birnimgham_active')
-def birnimgham_active():
+
+######################################################
+# 
+# API
+#
+######################################################
+
+@app.route('/api/active')
+def active():
     results = []
     
-    for house in mongo.db.houses.find({}):
-        house['_id'] = str(house['_id'])
-        results.append(house)
+    ''' tagator
+    cities = request.args.get('cities').split(',')
+    
+    for each in mongo.db.active.find({'city': {'$in': cities}}):
+        each['_id'] = str(each['_id'])
+        results.append(each)
+    '''
+    
+    city = request.args.get('city')
+    distance = int(request.args.get('distance').split()[1])
+    
+    if 'land' in request.args.get('property'):
+        prop = '.*' + request.args.get('property') + '.*'
+    else:
+        prop = '.*^' + request.args.get('bedrooms') + ' ' + request.args.get('property') + '.*'
+    
+    if distance:
+        cities = [city, 'Slough']
+    else:
+        cities = [city]
+    
+    for each in mongo.db.active.find({
+            'city': {'$in': cities}, 
+            'title': re.compile(prop, re.IGNORECASE)
+        }):
+        
+        each['_id'] = str(each['_id'])
+        results.append(each)
     
     return jsonify({'data': results})
 
-@app.route('/api/birnimgham_sold', methods=['GET', 'POST'])
-def birnimgham_sold():
+@app.route('/api/sold')
+def sold():
     results = []
+    query = request.args.get('q')
+    city = request.args.get('city') 
+    print('sold city:', city)
     
-    for house in mongo.db.sold_houses.find({'$text': {'$search': request.args.get('q')}}):
-        house['_id'] = str(house['_id'])
-        results.append(house)
+    for each in mongo.db.sold.find({'$text': {'$search': query}, 'city': city}):
+        each['_id'] = str(each['_id'])
+        results.append(each)
     
     return jsonify({'data': results})
 
-def test():
-    return 123
 
 ######################################################
 # 

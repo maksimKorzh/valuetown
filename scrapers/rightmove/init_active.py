@@ -1,35 +1,33 @@
 import csv
 import pymongo
 import json
+import sys
 
 class InitMongo:
-    data = []
-    client = pymongo.MongoClient('mongodb+srv://cmk:342124@todolist-c483l.gcp.mongodb.net/properties?retryWrites=true&w=majority')    
+    client = pymongo.MongoClient('mongodb+srv://alex:342124@cluster0-equas.mongodb.net/properties?retryWrites=true&w=majority')    
     db = client.properties
     
-    def upload(self):
-        with open('property.csv', 'r') as csv_file:
+    def upload(self, filename):
+        data = []
+        
+        with open('./data/' + filename, 'r') as csv_file:
             reader = csv.DictReader(csv_file)
             
             for row in reader:
-                self.data.append(dict(row))
+                entry = dict(row)
+                entry['city'] = filename.split('.')[0]
+                data.append(entry)
             
-            houses = self.db.houses
-            houses.insert_many(self.data)
-            houses.create_index([
-                ('title', pymongo.TEXT),
-                ('address', pymongo.TEXT),
-                ('description', pymongo.TEXT),
-                ('date', pymongo.TEXT),
-                ('seller', pymongo.TEXT),
-                ('price', pymongo.TEXT)
-            ], name='search_houses', default_language='english')
+            active = self.db.active
+            active.insert_many(data)
             
-            print('Uploaded data to MongoDb')
+            print('Uploaded "%s" data to MongoDb' % sys.argv[1])
 
     def run(self):
-        self.upload()
-
+        try:
+            self.upload(sys.argv[1])
+        except:
+            print('usage: python3 init_active.py <filename>')
 
 if __name__ == '__main__':
     uploader = InitMongo()

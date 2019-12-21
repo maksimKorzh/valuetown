@@ -90,7 +90,7 @@ if __name__ == '__main__':
     try:
         scraper = PropertyScraper()
         scraper.base_url = sys.argv[1]
-        scraper.filename = sys.argv[1].split('.')[-2].split('/')[-1].lower() + '.csv'
+        scraper.filename = sys.argv[1].split('.')[-2].split('/')[-1] + '.csv'
         scraper.pages = int(sys.argv[2])
     except:
         print('usage: python3 scrape_active.py https://www.rightmove.co.uk/property-for-sale/London.html 42')
