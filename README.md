@@ -24,6 +24,16 @@ css disable: {pointer-events: none; opacity: 0.4;}
 />
 </div-->
 
+''' tagator
+cities = request.args.get('cities').split(',')
+
+for each in mongo.db.active.find({'city': {'$in': cities}}):
+    each['_id'] = str(each['_id'])
+    results.append(each)
+'''
+
+db.collection.distinct('x') - unique values for field
+
 /* Tagator
 // Extract form data
 var formData = $('#city-selector').serializeArray();

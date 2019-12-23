@@ -4,7 +4,7 @@
   <div class="card">
     <div id="container" class="card-body text-center">
     
-      <div class="card mt-4">
+      <div class="card">
         <div class="card-body">
 
           <!-- Search selectors -->
@@ -19,13 +19,14 @@
             <div class="col">
               <label><strong>Distance:</strong></label>
               <select class="form-control" id="distance">
-                <option>+ 0 miles</option>
+                <option>Not specified</option>
                 <option>+ 10 miles</option>
               </select>
             </div>
             <div class="col">
               <label><strong>Property type:</strong></label>
               <select class="form-control" id="property">
+                <option>Not specified</option>
                 <option>apartment</option>
                 <option>flat</option>
                 <option>house</option>
@@ -35,6 +36,7 @@
             <div class="col">
               <label><strong>Bedrooms:</strong></label>
               <select class="form-control" id="bedrooms">
+                <option>Not specified</option>
                 <option>1 bedroom</option>
                 <option>2 bedroom</option>
                 <option>3 bedroom</option>
@@ -55,10 +57,28 @@
             </div>
           </div>
           <div class="row text-left mb-4">
-            
+            <div class="col">
+              <label><strong>From date:</strong></label>
+              <input type="date" class="form-control" id="from-date"/>
+            </div>
+            <div class="col">
+              <label><strong>To date:</strong></label>
+              <input type="date" class="form-control" id="to-date"/>
+            </div>
+            <div class="col">
+              <label><strong>Min price:</strong></label>
+              <input type="number" class="form-control" id="min-price"/>
+            </div>
+            <div class="col">
+              <label><strong>Max price:</strong></label>
+              <input type="number" class="form-control" id="max-price"/>
+            </div>
           </div>
           
-          <hr class="my-4"/>
+          <div class="col">
+              <label><strong>POA:</strong></label>
+              <input type="checkbox" id="poa" style="width: 36px" checked>
+            </div>
           
           <!-- Main datatable -->
           <table id="properties" class="display responsive nowrap text-left" style="width: 100%">

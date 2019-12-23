@@ -31,6 +31,31 @@ $(document).ready(function() {
   $('#bedrooms').on('change', function() {
     properties.ajax.reload();
   });
+  
+  // On min price change
+  $('#min-price').on('change', function() {
+    properties.ajax.reload();
+  });
+  
+  // On max price change
+  $('#max-price').on('change', function() {
+    properties.ajax.reload();
+  });
+  
+  // On from date change
+  $('#from-date').on('change', function() {
+    properties.ajax.reload();
+  });
+  
+  // On to date change
+  $('#to-date').on('change', function() {
+    properties.ajax.reload();
+  });
+  
+  // On POA change
+  $('#poa').on('change', function() {
+    properties.ajax.reload();
+  });
 });
 
 function initTable() {
@@ -44,6 +69,11 @@ function initTable() {
           args['distance'] = $('#distance option:selected').text();
           args['property'] = $('#property option:selected').text();
           args['bedrooms'] = $('#bedrooms option:selected').text();
+          args['min_price'] = $('#min-price').val();
+          args['max_price'] = $('#max-price').val();
+          args['from_date'] = $('#from-date').val();
+          args['to_date'] = $('#to-date').val();
+          args['poa'] = $('#poa').is(':checked');
         }
      },
     
@@ -59,6 +89,14 @@ function initTable() {
     ],
     
     columnDefs: [
+      {
+        targets: 2,
+        render: $.fn.dataTable.render.number(',', ',', 0, '£')
+      },
+      {
+        targets: 3,
+        render: (data) => { return moment(new Date(data)).format("Do MMM YYYY"); }
+      },
       {
           render: function (data, type, full, meta) {
             return "<div class='text-wrap'>" + data + "</div>";

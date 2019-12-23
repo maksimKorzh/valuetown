@@ -28,7 +28,7 @@ class InitMongo:
                 ('history.type', pymongo.TEXT),
                 ('history.date', pymongo.TEXT),
                 ('history.bedrooms', pymongo.TEXT)
-            ], name='sold_houses', default_language='english')
+            ], name='sold', default_language='english')
             
             print('Uploaded data to MongoDb')
 

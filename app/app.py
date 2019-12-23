@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_pymongo import PyMongo
 from flask import render_template
+from datetime import datetime
+from datetime import timedelta
 from flask import jsonify
 from flask import request
 import re
@@ -37,31 +39,59 @@ def home():
 @app.route('/api/active')
 def active():
     results = []
-    
-    ''' tagator
-    cities = request.args.get('cities').split(',')
-    
-    for each in mongo.db.active.find({'city': {'$in': cities}}):
-        each['_id'] = str(each['_id'])
-        results.append(each)
-    '''
-    
+
     city = request.args.get('city')
-    distance = int(request.args.get('distance').split()[1])
+    distance = request.args.get('distance')
+    proptype = request.args.get('property')
+    bedrooms = request.args.get('bedrooms')
+    from_date = request.args.get('from_date')
+    to_date = request.args.get('to_date')
+    max_price = request.args.get('max_price')
+    min_price = request.args.get('min_price')
+    poa_check = request.args.get('poa')
     
-    if 'land' in request.args.get('property'):
-        prop = '.*' + request.args.get('property') + '.*'
-    else:
-        prop = '.*^' + request.args.get('bedrooms') + ' ' + request.args.get('property') + '.*'
+    title = '.*'
+    price_min = 0
+    price_max = 999999999
+    date_from = datetime.today() - timedelta(5000)
+    date_to = datetime.today()
     
-    if distance:
+    if distance != 'Not specified':
         cities = [city, 'Slough']
     else:
         cities = [city]
     
+    if bedrooms != 'Not specified':
+        title += '^' + bedrooms + ' '
+    
+    if proptype != 'Not specified':
+        title += proptype
+
+    if from_date != '':
+        date_from = datetime.strptime(from_date, '%Y-%m-%d')
+    
+    if to_date != '':
+        date_to = datetime.strptime(to_date, '%Y-%m-%d')
+
+    if min_price != '':
+        price_min = int(min_price)
+    
+    if max_price != '':
+        price_max = int(max_price)
+    
+    if poa_check == 'true':
+        poa = 'POA'
+    else:
+        poa = ''
+    
+    if 'land' in proptype:
+        title = '.*' + proptype
+
     for each in mongo.db.active.find({
             'city': {'$in': cities}, 
-            'title': re.compile(prop, re.IGNORECASE)
+            'title': re.compile(title, re.IGNORECASE),
+            '$or': [{'price': {'$gte': price_min, '$lte': price_max}}, {'price': poa}],
+            'date': {'$gte': date_from, '$lte': date_to}
         }):
         
         each['_id'] = str(each['_id'])
@@ -73,8 +103,7 @@ def active():
 def sold():
     results = []
     query = request.args.get('q')
-    city = request.args.get('city') 
-    print('sold city:', city)
+    city = request.args.get('city')
     
     for each in mongo.db.sold.find({'$text': {'$search': query}, 'city': city}):
         each['_id'] = str(each['_id'])
