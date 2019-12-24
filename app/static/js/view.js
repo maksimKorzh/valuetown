@@ -81,6 +81,8 @@ function initTable() {
       {"data": "title"},
       {"data": "address"},
       {"data": "price"},
+      {"data": "evaluation.average"},
+      {"data": "evaluation.percentage"},
       {"data": "date"},
       {"data": "seller"},
       {"data": "description"},
@@ -95,25 +97,33 @@ function initTable() {
       },
       {
         targets: 3,
+        render: (data) => { return (data == null) ? 'N/A': '£' + Math.round(data * 100) / 100; }
+      },
+      {
+        targets: 4,
+        render: (data) => { return (data == null) ? 'N/A': Math.round(data * 100) / 100 + '%'; }
+      },
+      {
+        targets: 5,
         render: (data) => { return moment(new Date(data)).format("Do MMM YYYY"); }
       },
       {
+          targets: 7,
           render: function (data, type, full, meta) {
             return "<div class='text-wrap'>" + data + "</div>";
-          },
-          targets: 5
+          }
       },
       {
           render: function (data, type, full, meta) {
             return '<button type="button" data="' + data + '" onclick="showImage(this)" class="btn btn-primary" data-toggle="modal" data-target="#modalImage">View image...</button>';
           },
-          targets: 6
+          targets: 8
       },
       {
           render: function (data, type, full, meta) {
             return '<button type="button" onclick="salesHistory(this)" class="btn btn-secondary" data-toggle="modal" data-target="#modalHistory">Sale history...</button>';
           },
-          targets: 7
+          targets: 9
       }
     ]
     

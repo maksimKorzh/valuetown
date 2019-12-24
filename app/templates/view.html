@@ -26,7 +26,7 @@
             <div class="col">
               <label><strong>Property type:</strong></label>
               <select class="form-control" id="property">
-                <option>Not specified</option>
+                <option>Any type</option>
                 <option>apartment</option>
                 <option>flat</option>
                 <option>house</option>
@@ -36,23 +36,13 @@
             <div class="col">
               <label><strong>Bedrooms:</strong></label>
               <select class="form-control" id="bedrooms">
-                <option>Not specified</option>
-                <option>1 bedroom</option>
-                <option>2 bedroom</option>
-                <option>3 bedroom</option>
-                <option>4 bedroom</option>
-                <option>5 bedroom</option>
-                <option>6 bedroom</option>
-                <option>7 bedroom</option>
-                <option>8 bedroom</option>
-                <option>9 bedroom</option>
-                <option>10 bedroom</option>
-                <option>11 bedroom</option>
-                <option>12 bedroom</option>
-                <option>13 bedroom</option>
-                <option>14 bedroom</option>
-                <option>15 bedroom</option>
-                <option>16 bedroom</option>
+                <option>Any number</option>
+                <option>1 bedroom +</option>
+                <option>2 bedroom +</option>
+                <option>3 bedroom +</option>
+                <option>4 bedroom +</option>
+                <option>5 bedroom +</option>
+                <option>6 bedroom +</option>
               </select>
             </div>
           </div>
@@ -75,10 +65,12 @@
             </div>
           </div>
           
-          <div class="col">
+          <div class="row mb-2">
+            <div class="col text-left">
               <label><strong>POA:</strong></label>
               <input type="checkbox" id="poa" style="width: 36px" checked>
             </div>
+          </div>
           
           <!-- Main datatable -->
           <table id="properties" class="display responsive nowrap text-left" style="width: 100%">
@@ -87,6 +79,8 @@
                 <th>Property Type:</th>
                 <th>Address:</th>
                 <th>Asking Price:</th>
+                <th>Average Price:</th>
+                <th>Undervalued percantage:</th>
                 <th>Date Added:</th>
                 <th>Seller:</th>
                 <th>Description:</th>

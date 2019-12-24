@@ -20,7 +20,30 @@ class InitMongo:
             for row in reader:
                 entry = dict(row)
                 entry['city'] = filename.split('.')[0]
-                data.append(entry)
+                entry['evaluation'] = {
+                    'average': None,
+                    'percentage': None
+                }
+                
+                try:
+                    entry['bedrooms'] = int(''.join([s for s in entry['title'] if s.isdigit()]))
+                except:
+                    entry['bedrooms'] = 'N/A'
+
+                if 'flat' in entry['title'] or 'apartment' in entry['title']:
+                    entry['type'] = 'flat'
+                elif 'terraced' in entry['title']:
+                    entry['type'] = 'terraced'
+                elif 'semi detached' in entry['title']:
+                    entry['type'] = 'semi detached'
+                elif 'detached' in entry['title']:
+                    entry['type'] = 'detached'
+                elif 'bungalow' in entry['title']:
+                    entry['type'] = 'bungalow'
+                elif 'house' in entry['title']:
+                    entry['type'] = 'house'
+                else:
+                    entry['type'] = 'other'
                 
                 if entry['price'] != 'POA':
                     entry['price'] = int(entry['price'].split('£')[1].replace(',', ''))
@@ -30,6 +53,8 @@ class InitMongo:
                 else:
                     entry['date'] = datetime.today() - timedelta(1)
 
+                data.append(entry)
+
             active = self.db.active
             active.insert_many(data)
             
@@ -38,6 +63,7 @@ class InitMongo:
     def run(self):
         #try:
         self.upload(sys.argv[1])
+        self.client.close()
         #except:
         #    print('usage: python3 init_active.py <filename>')
 

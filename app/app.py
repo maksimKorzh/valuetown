@@ -61,10 +61,10 @@ def active():
     else:
         cities = [city]
     
-    if bedrooms != 'Not specified':
+    if bedrooms != 'Any number':
         title += '^' + bedrooms + ' '
     
-    if proptype != 'Not specified':
+    if proptype != 'Any type':
         title += proptype
 
     if from_date != '':
@@ -89,7 +89,7 @@ def active():
 
     for each in mongo.db.active.find({
             'city': {'$in': cities}, 
-            'title': re.compile(title, re.IGNORECASE),
+            #'title': re.compile(title, re.IGNORECASE),
             '$or': [{'price': {'$gte': price_min, '$lte': price_max}}, {'price': poa}],
             'date': {'$gte': date_from, '$lte': date_to}
         }):

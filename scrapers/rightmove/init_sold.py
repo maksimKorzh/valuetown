@@ -19,22 +19,25 @@ class InitMongo:
             
             for entry in data:
                 entry['city'] = filename.split('.')[0]
-
+                
+                for each in entry['history']:
+                    each['price'] = int(each['price'].split('£')[1].replace(',', ''))
+                    
+                    try:
+                        each['bedrooms'] = int(''.join([s for s in each['bedrooms'] if s.isdigit()]))
+                    except:
+                        each['bedrooms'] = 'N/A'
+                    
             sold = self.db.sold
             sold.insert_many(data)
-            sold.create_index([
-                ('address', pymongo.TEXT),
-                ('history.price', pymongo.TEXT),
-                ('history.type', pymongo.TEXT),
-                ('history.date', pymongo.TEXT),
-                ('history.bedrooms', pymongo.TEXT)
-            ], name='sold', default_language='english')
-            
+            sold.create_index([('address', pymongo.TEXT)], name='sold', default_language='english')
+
             print('Uploaded data to MongoDb')
 
     def run(self):
         try:
             self.upload(sys.argv[1])
+            self.client.close()
         except:
             print('usage: python3 init_sold.py <filename>')
 

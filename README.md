@@ -46,24 +46,16 @@ $.each(formData, function(key, val) {
 
 # TODO
 
-1. Add distance selector
-
-
-# In a perfect world
-
-Create our own valuation estimate based, not only properties that have sold in the immediate surrounding streets,
-but to specifically find properties that share the same features such as number of bedrooms & property type
-e.g. flat, detached house, semi-detached house etc within the area providing a much more accurate estimation
-
-So currently we have:
-6. Potentially we could have price reduction to show if properties have had price reductions? It helps a buyer determine if a seller might be desperate to sell. Reducing the price can be a sign of desperation.
-7. Then we can apply our estimates as to the true values.
-   Perhaps we can call this the ValueTown Estimate.
-   Potentially subdivide into 3 categories.
-       1 lowest estimate, 
-       1 average estimate,
-       1 highest estimate and 
-       state the number of samples the estimates are based on to indicate their accuracy.
+1. select property type in bulk
+ - We need 'Flats', 'Terraced' 'Semi Detached' 'Detached' and 'Bungalow' 
+ - only houses
+ - all
+2. bedrroms 1 + to 6 +
+3. I want to spend up to £X,
+   I want to find X type of property,
+   with a minimum of X bedrooms,
+   and I would like to see results filtered to show properties potentially undervalued by X percent,
+   assuming the properties shown can be purchased for X percent less than the asking price
 
 
 # indexes
