@@ -27,10 +27,12 @@
               <label><strong>Property type:</strong></label>
               <select class="form-control" id="property">
                 <option>Any type</option>
-                <option>apartment</option>
-                <option>flat</option>
-                <option>house</option>
-                <option>land</option>
+                <option>Flat</option>
+                <option>House</option>
+                <option>Terraced</option>
+                <option>Semi Detached</option>
+                <option>Detached</option>
+                <option>Bungalow</option>
               </select>
             </div>
             <div class="col">
@@ -57,20 +59,23 @@
             </div>
             <div class="col">
               <label><strong>Min price:</strong></label>
-              <input type="number" class="form-control" id="min-price"/>
+              <input type="number" class="form-control" placeholder="e.g. 10000" id="min-price"/>
             </div>
             <div class="col">
               <label><strong>Max price:</strong></label>
-              <input type="number" class="form-control" id="max-price"/>
+              <input type="number" class="form-control" placeholder="e.g. 500000" id="max-price"/>
             </div>
-          </div>
-          
-          <div class="row mb-2">
-            <div class="col text-left">
-              <label><strong>POA:</strong></label>
+            <div class="col">
+              <label><strong>Valuation:</strong></label>
+              <input type="number" class="form-control" placeholder="e.g. 0.1" id="valuation"/>
+            </div>
+            <div class="col-1">
+              <div><label><strong>POA:</strong></label></div>
               <input type="checkbox" id="poa" style="width: 36px" checked>
             </div>
           </div>
+          
+          <hr class="my-4"/>
           
           <!-- Main datatable -->
           <table id="properties" class="display responsive nowrap text-left" style="width: 100%">
@@ -80,7 +85,7 @@
                 <th>Address:</th>
                 <th>Asking Price:</th>
                 <th>Average Price:</th>
-                <th>Undervalued percantage:</th>
+                <th>Valuation:</th>
                 <th>Date Added:</th>
                 <th>Seller:</th>
                 <th>Description:</th>
@@ -125,8 +130,218 @@
     </div>
   </div>
 
-  <script src="{{url_for('static', filename='./js/view.js')}}" type="text/javascript">
+  <script type="text/javascript">
+    $(document).ready(function() {
+    // Load datatable
+    properties = initTable();
+
+    // Init city selector
+    /*var propertyType = $('#property-type').tagator({
+      autocomplete: ['Flats', 'Terraced', 'Semi Detached', 'Detached', 'Bungalow']
+    });
     
+    // City selector on change event handler
+    cityTags.on('change', function() {
+      //properties.ajax.reload();
+    });*/
+    
+    // On city change
+    $('#city').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On distance change
+    $('#distance').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On distance change
+    $('#property').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On distance change
+    $('#bedrooms').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On min price change
+    $('#min-price').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On max price change
+    $('#max-price').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On from date change
+    $('#from-date').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On to date change
+    $('#to-date').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On POA change
+    $('#valuation').on('change', function() {
+      properties.ajax.reload();
+    });
+    
+    // On POA change
+    $('#poa').on('change', function() {
+      properties.ajax.reload();
+    });
+  });
+
+  function initTable() {
+    return $('#properties').DataTable({
+      // Make HTTP GET requests with parameters to API
+      "ajax": {
+          "url": "/api/active",
+          "data": function(args) {
+            // Extract form data
+            args['city'] = $('#city option:selected').text();
+            args['distance'] = $('#distance option:selected').text();
+            args['property'] = $('#property option:selected').text();
+            args['bedrooms'] = $('#bedrooms option:selected').text();
+            args['min_price'] = $('#min-price').val();
+            args['max_price'] = $('#max-price').val();
+            args['from_date'] = $('#from-date').val();
+            args['to_date'] = $('#to-date').val();
+            args['valuation'] = $('#valuation').val();
+            args['poa'] = $('#poa').is(':checked');
+          }
+       },
+      
+      "columns": [
+        {"data": "title"},
+        {"data": "address"},
+        {"data": "price"},
+        {"data": "evaluation.average"},
+        {"data": "evaluation.percentage"},
+        {"data": "date"},
+        {"data": "seller"},
+        {"data": "description"},
+        {"data": "image"},
+        {"data": ''}
+      ],
+      
+      columnDefs: [
+        {
+          targets: 2,
+          render: $.fn.dataTable.render.number(',', ',', 0, '£')
+        },
+        {
+          targets: 3,
+          render: (data) => { return (data == null) ? 'N/A': '£' + Math.round(data * 100) / 100; }
+        },
+        {
+          targets: 4,
+          render: (data) => {
+            if (data == null)
+              return 'N/A'
+            else {
+              var val = Math.round(data * 100) / 100
+              
+              if (val > 0)
+                return '<span><strong class="text-success">' + val + '%' + '</strong> potentially undervalued</span>';
+              else
+                return '<span><strong class="text-danger">' + Math.abs(val) + '%' + '</strong> potentially overvalued</span>';
+            }
+          }
+        },
+        {
+          targets: 5,
+          render: (data) => { return moment(new Date(data)).format("Do MMM YYYY"); }
+        },
+        {
+            targets: 7,
+            render: function (data, type, full, meta) {
+              return "<div class='text-wrap'>" + data + "</div>";
+            }
+        },
+        {
+            render: function (data, type, full, meta) {
+              return '<button type="button" data="' + data + '" onclick="showImage(this)" class="btn btn-primary" data-toggle="modal" data-target="#modalImage">View image...</button>';
+            },
+            targets: 8
+        },
+        {
+            render: function (data, type, full, meta) {
+              return '<button type="button" onclick="salesHistory(this)" class="btn btn-secondary" data-toggle="modal" data-target="#modalHistory">Sale history...</button>';
+            },
+            targets: 9
+        }
+      ]
+      
+    });
+  }
+
+  function salesHistory(button) {
+    $('#modal-body').empty().text('Loading results...')
+    
+    var features = $($(button).closest('tr').prev().find('td')[1]);
+    var query = $(features).text();
+    var city = $('#city option:selected').text();
+
+    $.get('/api/sold?q=' + query + '&city=' + city, function (data) {    
+      $('#modal-body').text('')
+      
+      if (data.data.length == 0)
+        $('#modal-body').text('No results found')
+        
+      for (var index = 0; index < data.data.length; index++) {
+        var table = `
+          <table class="display table mt-4">
+            <thead>
+              <tr>
+                <th>Price</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Bedrooms</th>
+              </tr>
+            </thead>
+            <tbody>
+        `
+        
+        data.data[index].history.forEach((item) => {
+          table += `        
+            <tr>
+              <td>${item.price}</td>
+              <td>${item.type}</td>
+              <td>${item.date}</td>
+              <td>${item.bedrooms}</td>
+            <tr>
+          `
+        })
+        
+        table += "</tbody></table>"
+
+        $('#modal-body').append(
+          '<div class="col">' +
+            '<strong>' + data.data[index].address + '</strong>' + table +
+            
+          '<div>');
+      }
+    });
+    
+  }
+
+  function showImage(button) {
+    $('#image-title').empty()
+    $('#image-body').empty()
+    
+    var features = $($(button).closest('tr').prev().find('td')[1]);
+    var title = $(features).text()
+    var image = $(button).attr('data')      
+
+    $('#image-title').append('<strong>' + title + '</strong>')
+    $('#image-body').append('<img src="'+ image + '">')
+  }
+
   </script>
   
 {% endblock %}

@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 from flask import jsonify
 from flask import request
+from flask import Response
 import re
 
 
@@ -48,11 +49,14 @@ def active():
     to_date = request.args.get('to_date')
     max_price = request.args.get('max_price')
     min_price = request.args.get('min_price')
+    valuation = request.args.get('valuation')
     poa_check = request.args.get('poa')
-    
-    title = '.*'
+
+    rooms = 0
+    type_prop = '.*'
     price_min = 0
     price_max = 999999999
+    val_prop = -999
     date_from = datetime.today() - timedelta(5000)
     date_to = datetime.today()
     
@@ -62,10 +66,10 @@ def active():
         cities = [city]
     
     if bedrooms != 'Any number':
-        title += '^' + bedrooms + ' '
+        rooms = int(bedrooms.split()[0])
     
     if proptype != 'Any type':
-        title += proptype
+        type_prop = proptype
 
     if from_date != '':
         date_from = datetime.strptime(from_date, '%Y-%m-%d')
@@ -79,6 +83,9 @@ def active():
     if max_price != '':
         price_max = int(max_price)
     
+    if valuation != '':
+        val_prop = float(valuation)
+    
     if poa_check == 'true':
         poa = 'POA'
     else:
@@ -87,12 +94,20 @@ def active():
     if 'land' in proptype:
         title = '.*' + proptype
 
-    for each in mongo.db.active.find({
-            'city': {'$in': cities}, 
-            #'title': re.compile(title, re.IGNORECASE),
-            '$or': [{'price': {'$gte': price_min, '$lte': price_max}}, {'price': poa}],
-            'date': {'$gte': date_from, '$lte': date_to}
-        }):
+    query = {
+        'city': {'$in': cities},
+        'type': re.compile(type_prop, re.IGNORECASE),
+        '$or': [{'price': {'$gte': price_min, '$lte': price_max}}, {'price': poa}],        
+        'date': {'$gte': date_from, '$lte': date_to}
+    }
+
+    if valuation != '':
+        query['evaluation.percentage'] = {'$gte': val_prop}
+
+    if bedrooms != 'Any number':  
+        query['bedrooms'] = {'$gte': rooms}
+
+    for each in mongo.db.active.find(query):
         
         each['_id'] = str(each['_id'])
         results.append(each)
